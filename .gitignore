@@ -1,0 +1,8 @@
+.key
+.vault
+*.retry
+*.pyc
+.molecule/
+.vagrant/
+log/
+.fact_cache/

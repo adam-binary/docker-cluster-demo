@@ -1,0 +1,50 @@
+---
+- name: install apt-transport-https
+  package:
+    name: apt-transport-https
+    state: present
+
+- name: add docker repo apt key
+  apt_key:
+    url: "https://download.docker.com/linux/debian/gpg"
+    state: present 
+
+- name: add docker apt repo
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/debian stretch stable edge
+    state: present
+
+- name: install docker-ce
+  package:
+    name: docker-ce
+    state: present
+
+- name: copy docker systemd service unit file
+  copy:
+    src: etc/systemd/system/docker.service
+    dest: /etc/systemd/system/docker.service
+    mode: 0640
+    owner: root
+    group: root
+
+- name: copy docker default file
+  copy:
+    src: etc/default/docker
+    dest: /etc/default/docker
+    mode: 0640
+    owner: root
+    group: root
+
+- name: ensure docker service
+  systemd:
+    name: docker
+    state: restarted
+    daemon_reload: yes
+
+- name: include master.yml
+  include: manager.yml
+  when: ansible_hostname == "swarmManager-1"
+
+- name: include worker.yml
+  include: worker.yml
+  when: ansible_hostname != "swarmManager-1"
